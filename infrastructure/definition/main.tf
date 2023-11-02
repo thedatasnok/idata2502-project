@@ -19,9 +19,8 @@ provider "linode" {
   token = var.token
 }
 
-
-resource "linode_instance" "k8s_node" {
-  count           = 3
+resource "linode_instance" "k3s_server" {
+  count           = 2
   label           = "k8s-master"
   image           = "linode/ubuntu22.04"
   region          = "se-sto"
@@ -29,8 +28,8 @@ resource "linode_instance" "k8s_node" {
   authorized_keys = [var.ssh_public_key]
 }
 
-resource "linode_instance" "k8s_worker" {
-  count           = 2
+resource "linode_instance" "k3s_agent" {
+  count           = 3
   label           = "k8s-worker"
   image           = "linode/ubuntu22.04"
   region          = "se-sto"
