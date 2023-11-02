@@ -1,0 +1,20 @@
+name: PR preview environment deletion
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete_preview_environment:
+    name: Delete preview environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up kubectl
+        uses: azure/k8s-set-context@v1
+        with:
+          k8s-secret: yep
+
+      - name: Delete k8s namespace
+        run: |
+          PREVIEW_ENVIRONMENT_NAMESPACE="github-pr-${{ github.event.pull_request.number }}"
+          kubectl delete namespace $PREVIEW_ENVIRONMENT_NAMESPACE

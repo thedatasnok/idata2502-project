@@ -1,0 +1,25 @@
+name: PR preview stale environment notifier
+
+on:
+  schedule:
+    # Runs every 7 days
+    - cron: "0 0 * * 0"
+
+jobs:
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up kubectl
+        uses: azure/k8s-set-context@v1
+        with:
+          k8s-url: ${{ env.K8S_URL }}
+          k8s-secret: ${{ secrets.K8S_SECRET }}
+
+      - name: Discover stale environments
+        run: |
+          kubectl get ns
+
+      - name: Notify owner
+        run: |
+          echo "Hello world"

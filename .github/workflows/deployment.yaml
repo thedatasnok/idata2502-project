@@ -1,0 +1,21 @@
+name: Deploy production environment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run_tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+  build_artifacts:
+    name: Build artifacts
+    needs: run_tests
+    runs-on: ubuntu-latest
+
+  deploy_production:
+    name: Deploy to production
+    needs: build_artifacts
+    runs-on: ubuntu-latest
