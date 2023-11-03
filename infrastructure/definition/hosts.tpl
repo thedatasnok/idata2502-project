@@ -1,0 +1,10 @@
+controlplane:
+  hosts:
+    ${controlplane}
+worker:
+  hosts:
+    ${worker}
+cluster:
+  children:
+    controlplane:
+    worker:

@@ -16,9 +16,9 @@ provider "linode" {
   token = local.default_token
 }
 
-resource "linode_instance" "k3s_server" {
+resource "linode_instance" "control_plane" {
   count           = 3
-  label           = "k3s-server-${count.index + 1}"
+  label           = "plane-${count.index + 1}"
   image           = "linode/ubuntu22.04"
   region          = "se-sto"
   type            = "g6-standard-1"
@@ -35,9 +35,9 @@ resource "linode_instance" "k3s_server" {
   }
 }
 
-resource "linode_instance" "k3s_agent" {
+resource "linode_instance" "worker" {
   count           = 3
-  label           = "k3s-agent-${count.index + 1}"
+  label           = "worker-${count.index + 1}"
   image           = "linode/ubuntu22.04"
   region          = "se-sto"
   type            = "g6-standard-1"
@@ -70,5 +70,27 @@ resource "linode_firewall" "node-ingress" {
   inbound_policy  = "DROP"
   outbound_policy = "ACCEPT"
 
-  linodes = concat(linode_instance.k3s_server[*].id, linode_instance.k3s_agent[*].id)
+  linodes = concat(linode_instance.control_plane[*].id, linode_instance.worker[*].id)
+}
+
+data "template_file" "ansible_inventory" {
+  template = file("${path.module}/hosts.tpl")
+
+  vars = {
+    controlplane = indent(4, yamlencode({ for plane in linode_instance.control_plane : plane.label => {
+      ansible_user = "root"
+      ansible_host = tolist(plane.ipv4)[0]
+      internal_ip  = replace(plane.interface[1].ipam_address, "/24", "")
+    } }))
+    worker = indent(4, yamlencode({ for worker in linode_instance.worker : worker.label => {
+      ansible_user = "root"
+      ansible_host = tolist(worker.ipv4)[0]
+      internal_ip  = replace(worker.interface[1].ipam_address, "/24", "")
+    } }))
+  }
+}
+
+resource "local_sensitive_file" "ansible_inventory" {
+  content  = data.template_file.ansible_inventory.rendered
+  filename = "${path.module}/../configuration/ansible/inventory/hosts.yml"
 }
