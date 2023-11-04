@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  name: dashboard
+  namespace: kube-system
+spec:
+  rules:
+    - host: dashboard.{{ DOMAIN_ROOT }}
+      http:
+        paths:
+          - backend:
+              service:
+                name: kubernetes-dashboard
+                port:
+                  number: 443
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - dashboard.{{ DOMAIN_ROOT }}
+      secretName: dashboard-ingress-cert

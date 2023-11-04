@@ -10,6 +10,8 @@
 - name: Install cluster
   hosts: cluster
   become: true
+  vars_files:
+    - ../vars.yml
   roles:
     - name: Install k3s
       role: xanmanning.k3s

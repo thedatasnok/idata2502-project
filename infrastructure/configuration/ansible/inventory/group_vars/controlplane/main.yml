@@ -13,3 +13,15 @@ k3s_server:
   disable:
     - traefik
     - servicelb
+
+k3s_server_manifests_urls:
+  - url: https://raw.githubusercontent.com/metallb/metallb/v0.13.12/config/manifests/metallb-native.yaml
+    filename: metallb.yml
+  - url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml
+    filename: ingress-nginx.yml
+
+k3s_server_manifests_templates:
+  - external-dns.yml.j2
+  - lets-encrypt.yml.j2
+  - api-server-ingress.yml.j2
+  - dashboard-ingress.yml.j2

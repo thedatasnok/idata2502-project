@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  name: apiserver
+  namespace: default
+spec:
+  rules:
+    - host: k8s.{{ DOMAIN_ROOT }}
+      http:
+        paths:
+          - backend:
+              service:
+                name: kubernetes
+                port:
+                  number: 443
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - k8s.{{ DOMAIN_ROOT }}
+      secretName: apiserver-ingress-cert
