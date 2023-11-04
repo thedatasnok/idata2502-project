@@ -1,0 +1,17 @@
+---
+- name: Set node hostnames
+  hosts: cluster
+  become: true
+  tasks:
+    - name: Set hostname
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+
+- name: Install cluster
+  hosts: cluster
+  become: true
+  roles:
+    - name: Install k3s
+      role: xanmanning.k3s
+      vars:
+        k3s_state: installed

@@ -1,0 +1,15 @@
+---
+k3s_control_node: true
+k3s_etcd_datastore: true
+
+k3s_server:
+  node-ip: "{{ ansible_eth1.ipv4.address }}"
+  tls-san:
+    - "{{ k3s_registration_address }}"
+  advertise-address: "{{ ansible_eth1.ipv4.address }}"
+  bind-address: 0.0.0.0
+  write-kubeconfig-mode: 644
+  node-external-ip: "{{ ansible_eth1.ipv4.address }}"
+  disable:
+    - traefik
+    - servicelb

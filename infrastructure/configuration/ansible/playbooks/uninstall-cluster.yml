@@ -1,0 +1,9 @@
+---
+- name: Uninstall cluster
+  hosts: cluster
+  become: true
+  roles:
+    - name: Uninstall k3s
+      role: xanmanning.k3s
+      vars:
+        k3s_state: uninstalled

@@ -1,0 +1,7 @@
+---
+k3s_agent:
+  with-node-id: true
+  node-ip: "{{ ansible_eth1.ipv4.address }}"
+  node-external-ip: "{{ ansible_eth1.ipv4.address }}"
+  node-label:
+    - "worker"
