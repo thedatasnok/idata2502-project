@@ -4,6 +4,14 @@ locals {
 }
 
 terraform {
+  cloud {
+    organization = "datasnok"
+
+    workspaces {
+      name = "idata2502-project"
+    }
+  }
+
   required_providers {
     linode = {
       source  = "linode/linode"
