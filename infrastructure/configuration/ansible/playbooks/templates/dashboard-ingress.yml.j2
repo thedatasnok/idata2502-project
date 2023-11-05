@@ -5,8 +5,9 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   name: dashboard
-  namespace: kube-system
+  namespace: kubernetes-dashboard
 spec:
+  ingressClassName: nginx
   rules:
     - host: dashboard.{{ DOMAIN_ROOT }}
       http:

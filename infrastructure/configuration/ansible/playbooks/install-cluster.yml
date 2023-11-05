@@ -7,6 +7,22 @@
       ansible.builtin.hostname:
         name: "{{ inventory_hostname }}"
 
+- name: Extract IP addresses
+  hosts: cluster
+  gather_facts: true
+  tasks:
+    - name: Set private IP address
+      ansible.builtin.set_fact:
+        private_ip: "{{ item }}"
+      loop: "{{ ansible_all_ipv4_addresses | default([]) }}"
+      when: not item.startswith('192.168.0') and item.startswith('192.168')
+
+    - name: Set public IP address
+      ansible.builtin.set_fact:
+        public_ip: "{{ item }}"
+      loop: "{{ ansible_all_ipv4_addresses | default([]) }}"
+      when: not item.startswith('192.168') and public_ip is not defined
+
 - name: Install cluster
   hosts: cluster
   become: true

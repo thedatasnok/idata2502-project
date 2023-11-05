@@ -1,3 +1,3 @@
 ---
 k3s_release_version: stable
-k3s_registration_address: 192.168.0.2
+k3s_registration_address: "{{ hostvars['plane-1']['private_ip'] | default('') }}"

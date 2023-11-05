@@ -52,7 +52,7 @@ spec:
           image: registry.k8s.io/external-dns/external-dns:v0.13.6
           resources:
           args:
-            - --source=service
+            - --source=ingress
             - --domain-filter={{ DOMAIN_ROOT }}
             - --provider={{ DOMAIN_PROVIDER }}
           env:

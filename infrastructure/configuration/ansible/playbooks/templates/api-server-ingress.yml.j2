@@ -7,8 +7,9 @@ metadata:
   name: apiserver
   namespace: default
 spec:
+  ingressClassName: nginx
   rules:
-    - host: k8s.{{ DOMAIN_ROOT }}
+    - host: api.{{ DOMAIN_ROOT }}
       http:
         paths:
           - backend:
@@ -20,5 +21,5 @@ spec:
             pathType: Prefix
   tls:
     - hosts:
-        - k8s.{{ DOMAIN_ROOT }}
+        - api.{{ DOMAIN_ROOT }}
       secretName: apiserver-ingress-cert

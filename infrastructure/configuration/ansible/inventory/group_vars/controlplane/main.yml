@@ -3,24 +3,27 @@ k3s_control_node: true
 k3s_etcd_datastore: true
 
 k3s_server:
-  node-ip: "{{ ansible_eth1.ipv4.address }}"
+  node-ip: "{{ hostvars[inventory_hostname]['private_ip'] | default('') }}"
   tls-san:
     - "{{ k3s_registration_address }}"
-  advertise-address: "{{ ansible_eth1.ipv4.address }}"
+  advertise-address: "{{ hostvars[inventory_hostname]['private_ip'] | default('') }}"
   bind-address: 0.0.0.0
   write-kubeconfig-mode: 644
-  node-external-ip: "{{ ansible_eth1.ipv4.address }}"
+  node-external-ip: "{{ hostvars[inventory_hostname]['public_ip'] | default('') }}"
   disable:
     - traefik
     - servicelb
 
 k3s_server_manifests_urls:
-  - url: https://raw.githubusercontent.com/metallb/metallb/v0.13.12/config/manifests/metallb-native.yaml
-    filename: metallb.yml
-  - url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml
+  - url: https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.yaml
+    filename: cert-manager.yml
+  - url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
     filename: ingress-nginx.yml
+  - url: https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+    filename: k8s-dashboard.yml
 
 k3s_server_manifests_templates:
+  - linode-ccm.yml.j2
   - external-dns.yml.j2
   - lets-encrypt.yml.j2
   - api-server-ingress.yml.j2
