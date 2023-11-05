@@ -1,0 +1,8 @@
+---
+- name: Reboot nodes
+  hosts: cluster
+  become: true
+  tasks:
+    - name: Reboot node
+      ansible.builtin.reboot:
+        reboot_timeout: 600
