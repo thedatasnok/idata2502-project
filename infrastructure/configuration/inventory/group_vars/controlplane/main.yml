@@ -21,6 +21,8 @@ k3s_server_manifests_urls:
     filename: ingress-nginx.yml
   - url: https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
     filename: k8s-dashboard.yml
+  - url: https://raw.githubusercontent.com/longhorn/longhorn/v1.5.2/deploy/longhorn.yaml
+    filename: longhorn.yml
 
 k3s_server_manifests_templates:
   - linode-ccm.yml.j2
