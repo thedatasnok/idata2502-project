@@ -22,12 +22,15 @@ jobs:
           cli_config_credentials_token: ${{ secrets.   }}
 
       - name: Check formatting
+        working-directory: ./infrastructure/definition
         run: terraform fmt -check
 
       - name: Initialize terraform
+        working-directory: ./infrastructure/definition
         run: terraform init
 
       - name: Validate definitions
+        working-directory: ./infrastructure/definition
         run: terraform validate -no-color
 
   apply_infrastructure:
@@ -44,6 +47,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Initialize terraform
+        working-directory: ./infrastructure/definition
         run: terraform init
 
   lint_configuration:
@@ -52,6 +56,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          path: ./infrastructure/configuration
 
       - name: Run ansible lint
         uses: ansible/ansible-lint@v6
