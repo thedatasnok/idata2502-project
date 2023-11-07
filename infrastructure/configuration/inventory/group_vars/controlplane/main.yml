@@ -23,6 +23,8 @@ k3s_server_manifests_urls:
     filename: k8s-dashboard.yml
   - url: https://raw.githubusercontent.com/longhorn/longhorn/v1.5.2/deploy/longhorn.yaml
     filename: longhorn.yml
+  - url: https://github.com/kubernetes-sigs/hierarchical-namespaces/releases/download/v1.1.0/default.yaml
+    filename: k8s-hnc.yml
 
 k3s_server_manifests_templates:
   - linode-ccm.yml.j2
