@@ -32,3 +32,4 @@ k3s_server_manifests_templates:
   - lets-encrypt.yml.j2
   - api-server-ingress.yml.j2
   - dashboard-ingress.yml.j2
+  - pipeline-resources.yml.j2
