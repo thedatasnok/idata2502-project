@@ -1,7 +1,7 @@
-import postgres from 'postgres';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import * as schema from './schema';
 import { Logger } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from './schema';
 
 const queryClient = postgres({
   host: process.env.POSTGRES_HOST,
