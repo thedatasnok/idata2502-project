@@ -1,0 +1,51 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "id": "5eb0aacb-6d36-4214-853d-43f45b09d005",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "todo": {
+      "name": "todo",
+      "schema": "",
+      "columns": {
+        "todo_id": {
+          "name": "todo_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "completed": {
+          "name": "completed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  }
+}
