@@ -22,17 +22,43 @@ The configuration part is handled by ansible, which is used to configure the nod
 In order for the pipeline to succeed, changes need to be made in the used domain registrar.
 For my use-case it's GoDaddy, and what I want to do is forward the subdomain `cloud.overlien.no` to Akamai's nameservers.
 
-<!-- TODO -->
+This is done by adding the following records:
+
+```
+NS  cloud   ns1.linode.com
+NS  cloud   ns2.linode.com
+NS  cloud   ns3.linode.com
+NS  cloud   ns4.linode.com
+NS  cloud   ns5.linode.com
+```
 
 ## Current infrastructure cost
 
-| Resource   | Cost (monthly) | Quantity | Total (monthly) |
-| ---------- | -------------- | -------- | --------------- |
-| Linode 4GB | $24            | 3        | $72             |
-|            |                |          | **$72**         |
+| Resource            | Cost (monthly) | Quantity | Total (monthly) |
+| ------------------- | -------------- | -------- | --------------- |
+| Nanode 1GB          | $5             | 1        | $5              |
+| Linode 2GB          | $12            | 6        | $72             |
+| Linode NodeBalancer | $10            | 1        | $10             |
+|                     |                |          | **$87**         |
 
-Taking the free credits of $100 into account, this should last approximately 1 month and a couple weeks.
+## Testing the ansible playbooks locally
 
-## Testing the ansible playbook locally
+1. Install ansible
 
-<!-- TODO -->
+```
+sudo apt install python3.10-venv
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+pipx install --include-deps ansible
+pipx inject ansible jmespath
+```
+
+2. Change to the ansible directory, `cd configuration`
+
+3. Prepare environment variables, see [.env.example](configuration/.env.example) and [register-env.sh](configuration/register-env.sh)
+
+4. Run a playbook
+
+```
+ansible-playbook playbooks/install-cluster.yml -i inventory/hosts.yml --vault-id prod@vault_pass.txt
+```
