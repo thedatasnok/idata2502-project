@@ -28,6 +28,12 @@ provider "linode" {
   token = data.hcp_vault_secrets_secret.linode_token.secret_value
 }
 
+resource "linode_domain" "domain" {
+  type      = "master"
+  domain    = local.shared_vars.DOMAIN_ROOT
+  soa_email = local.shared_vars.DOMAIN_CONTACT
+}
+
 resource "linode_instance" "bastion" {
   label           = "bastion-1"
   image           = "linode/ubuntu22.04"
