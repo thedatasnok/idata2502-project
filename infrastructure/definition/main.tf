@@ -1,3 +1,19 @@
+variable "HCP_CLIENT_ID" {
+  default = ""
+}
+
+variable "HCP_CLIENT_SECRET" {
+  default = ""
+}
+
+variable "HCP_PROJECT_ID" {
+  default = ""
+}
+
+variable "HCP_APP_ID" {
+  default = ""
+}
+
 locals {
   shared_vars = yamldecode(file("${path.module}/vars.yml"))
 }
@@ -12,6 +28,10 @@ terraform {
   }
 
   required_providers {
+    hcp = {
+      source  = "hashicorp/hcp"
+      version = "~> 0.76.0"
+    }
     linode = {
       source  = "linode/linode"
       version = "2.9.4"
@@ -19,8 +39,14 @@ terraform {
   }
 }
 
+provider "hcp" {
+  client_id     = var.HCP_CLIENT_ID
+  client_secret = var.HCP_CLIENT_SECRET
+  project_id    = var.HCP_PROJECT_ID
+}
+
 data "hcp_vault_secrets_secret" "linode_token" {
-  app_name    = "idata2502-project"
+  app_name    = var.HCP_APP_ID
   secret_name = "LINODE_TOKEN"
 }
 
