@@ -210,12 +210,6 @@ data "template_file" "ansible_inventory" {
   }
 }
 
-resource "null_resource" "ansible_inventory" {
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-
-  provisioner "local-exec" {
-    command = "echo \"${data.template_file.ansible_inventory.rendered}\" > ${path.module}/../configuration/inventory/hosts.yml"
-  }
+output "ansible_inventory" {
+  value = data.template_file.ansible_inventory.rendered
 }
