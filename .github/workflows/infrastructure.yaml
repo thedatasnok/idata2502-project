@@ -56,7 +56,11 @@ jobs:
         working-directory: infrastructure/definition
         run: terraform apply -auto-approve
 
-      - name: Stage and commit inventory changes
+      - name: Write inventory changes
+        working-directory: infrastructure/definition
+        run: terraform output -raw ansible_inventory > ../configuration/hosts.yml
+
+      - name: Stage, commit and push inventory changes
         run: |
           git add infrastructure/configuration/inventory/hosts.yml
           git commit -m "chore(infrastructure): update inventory hosts file [ci skip]"
@@ -72,7 +76,7 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.10
+          python-version: '3.10'
 
       - name: Install ansible
         run: |
@@ -108,7 +112,7 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.10
+          python-version: '3.10'
 
       - name: Install ansible
         run: |
