@@ -1,6 +1,5 @@
 locals {
-  default_token   = file("./token")
-  default_ssh_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDdMjx9MC8YJji3HEnD52s45O2suLTkTk1IuMILOW15eJwqjQt+YlCErMHiZr1uasouUwPRXvJsgj9Kzbub9LXjLyvEkvVB5FozDeT0KQ8YCGp2FxUHYQeX74Lv7Dc9yrmjE5g9Xj/8Bm85WWzn9jP5bPUATXSGGJynguVijos+yst2pEf6h9tiKAmw61hFHqh91J0+cLZs61GfhSxsLhonhahby6DzdkrkxK7i3y1uTbKESvzJJklMBpTsW3uNtrIjBmcJYf3swB49/qKESqpd/7Euu+VOygAnrh53dNM84f9hAcqLxNp8MpGv19PjFJ2jsnP3mkDFP1bapA73mvT6aiSY/ucA0od+aIeb1q/OYJogW5fBtRxqkr1umJR9jJnLhnUqea5gHFB5kpqEQcdJgRg+2mwqt0YCnUF2Q+sn7dtKI4MXut/lW1UF732SEB4PJgqJwTmjeNh/I247XUAQ2lSfsylTDsk/ASzy+ctVC1yvoo6VH2tZ6WVciOxBxEM= datasnok@DESKTOP-FATS1F2"
+  shared_vars = yamldecode(file("${path.module}/vars.yml"))
 }
 
 terraform {
@@ -20,16 +19,21 @@ terraform {
   }
 }
 
+data "hcp_vault_secrets_secret" "linode_token" {
+  app_name    = "idata2502-project"
+  secret_name = "LINODE_TOKEN"
+}
+
 provider "linode" {
-  token = local.default_token
+  token = data.hcp_vault_secrets_secret.linode_token.secret_value
 }
 
 resource "linode_instance" "bastion" {
   label           = "bastion-1"
   image           = "linode/ubuntu22.04"
-  region          = "se-sto"
+  region          = local.shared_vars.LINODE_REGION
   type            = "g6-nanode-1"
-  authorized_keys = [local.default_ssh_key]
+  authorized_keys = local.shared_vars.SSH_PUBLIC_KEY
 
   interface {
     purpose = "public"
@@ -46,9 +50,9 @@ resource "linode_instance" "control_plane" {
   count           = 3
   label           = "plane-${count.index + 1}"
   image           = "linode/ubuntu22.04"
-  region          = "se-sto"
+  region          = local.shared_vars.LINODE_REGION
   type            = "g6-standard-1"
-  authorized_keys = [local.default_ssh_key]
+  authorized_keys = local.shared_vars.SSH_PUBLIC_KEY
   private_ip      = true
 
   interface {
@@ -66,9 +70,9 @@ resource "linode_instance" "worker" {
   count           = 3
   label           = "worker-${count.index + 1}"
   image           = "linode/ubuntu22.04"
-  region          = "se-sto"
+  region          = local.shared_vars.LINODE_REGION
   type            = "g6-standard-1"
-  authorized_keys = [local.default_ssh_key]
+  authorized_keys = local.shared_vars.SSH_PUBLIC_KEY
   private_ip      = true
 
   interface {

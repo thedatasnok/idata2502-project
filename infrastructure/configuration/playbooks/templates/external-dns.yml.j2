@@ -57,4 +57,4 @@ spec:
             - --provider={{ DOMAIN_PROVIDER }}
           env:
             - name: LINODE_TOKEN
-              value: {{ VAULT_LINODE_TOKEN }}
+              value: {{ remote_vault.LINODE_TOKEN }}
