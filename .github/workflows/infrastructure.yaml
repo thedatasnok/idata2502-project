@@ -67,8 +67,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: infrastructure/configuration
 
       - name: Run ansible lint
         uses: ansible/ansible-lint@v6
@@ -86,6 +84,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Install python
         uses: actions/setup-python@v2
