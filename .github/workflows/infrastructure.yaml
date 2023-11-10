@@ -12,6 +12,7 @@ jobs:
   lint_infrastructure:
     name: Lint infrastructure definitions
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[ci skip]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,7 +20,7 @@ jobs:
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          cli_config_credentials_token: ${{ secrets.   }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Check formatting
         working-directory: ./infrastructure/definition
@@ -47,8 +48,18 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Initialize terraform
-        working-directory: ./infrastructure/definition
+        working-directory: infrastructure/definition
         run: terraform init
+
+      - name: Apply terraform
+        working-directory: infrastructure/definition
+        run: terraform apply -auto-approve
+
+      - name: Stage and commit inventory changes
+        run: |
+          git add infrastructure/configuration/inventory/hosts.yml
+          git commit -m "chore(infrastructure): update inventory hosts file [ci skip]"
+          git push
 
   lint_configuration:
     name: Lint configuration code
@@ -57,7 +68,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          path: ./infrastructure/configuration
+          path: infrastructure/configuration
 
       - name: Run ansible lint
         uses: ansible/ansible-lint@v6
@@ -70,7 +81,7 @@ jobs:
       - apply_infrastructure
     defaults:
       run:
-        working-directory: ./infrastructure/configuration
+        working-directory: infrastructure/configuration
 
     steps:
       - name: Checkout
@@ -81,21 +92,17 @@ jobs:
         with:
           python-version: 3.10
 
-      - name: Prepare venv
+      - name: Install ansible
         run: |
           python -m pip install --upgrade pip
-          pip install ansible
-
-      - name: Prepare vault secret
-        working-directory: ./infrastructure/configuration
-        env:
-          VAULT_SECRET: ${{ secrets.ANSIBLE_VAULT_SECRET }}
-        run: echo $VAULT_SECRET > vault_pass.txt
+          python -m pip install --user ansible
+          python -m pip install --user jmespath
 
       - name: Run install cluster playbook
-        working-directory: ./infrastructure/configuration
-        run: ansible-playbook playbooks/install-cluster.yml -i inventory/hosts.yml --vault-id prod@vault_pass.txt
-
-      - name: Update account token
-        working-directory: ./infrastructure/configuration
-        run: ansible-playbook playbooks/github-pipeline-secret.yml -i inventory/hosts.yml
+        env:
+          HCP_CLIENT_ID: ${{ secrets.HCP_CLIENT_ID }}
+          HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
+          HCP_VS_ORGANIZATION_ID: ${{ secrets.HCP_VS_ORGANIZATION_ID }}
+          HCP_VS_PROJECT_ID: ${{ secrets.HCP_VS_PROJECT_ID }}
+          HCP_VS_APP_ID: ${{ secrets.HCP_VS_APP_ID }}
+        run: ansible-playbook playbooks/install-cluster.yml -i inventory/hosts.yml
