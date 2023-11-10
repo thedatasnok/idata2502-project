@@ -7,6 +7,7 @@ on:
     paths:
       - "infrastructure/**"
       - "!infrastructure/README.md"
+  workflow_dispatch:
 
 jobs:
   lint_infrastructure:
