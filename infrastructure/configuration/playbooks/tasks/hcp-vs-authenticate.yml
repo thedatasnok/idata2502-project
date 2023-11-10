@@ -1,0 +1,32 @@
+---
+- name: Initial authentication
+  ansible.builtin.uri:
+    url: https://auth.hashicorp.com/oauth/token
+    method: POST
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+    body:
+      audience: https://api.hashicorp.cloud
+      grant_type: client_credentials
+      client_id: "{{ lookup('ansible.builtin.env', 'HCP_CLIENT_ID') }}"
+      client_secret: "{{ lookup('ansible.builtin.env', 'HCP_CLIENT_SECRET') }}"
+  register: hcp_auth
+
+- name: Set facts from environment variables
+  ansible.builtin.set_fact:
+    hcp_vs_organization_id: "{{ lookup('ansible.builtin.env', 'HCP_VS_ORGANIZATION_ID') }}"
+    hcp_vs_project_id: "{{ lookup('ansible.builtin.env', 'HCP_VS_PROJECT_ID') }}"
+    hcp_vs_app_id: "{{ lookup('ansible.builtin.env', 'HCP_VS_APP_ID') }}"
+
+- name: Prepare url
+  ansible.builtin.set_fact:
+    hcp_vault_url_format: >
+      https://api.cloud.hashicorp.com/secrets/2023-06-13
+      /organizations/{{ hcp_vs_organization_id }}
+      /projects/{{ hcp_vs_project_id }}
+      /apps/{{ hcp_vs_app_id }}
+
+- name: Set url
+  ansible.builtin.set_fact:
+    hcp_vault_url_base: "{{ hcp_vault_url_format | regex_replace('\\s', '') }}"

@@ -5,7 +5,7 @@
   tasks:
     - name: Set hostname
       ansible.builtin.hostname:
-        name: "{{ inventory_hostname }}"
+        name: '{{ inventory_hostname }}'
 
 - name: Extract IP addresses
   hosts: cluster
@@ -13,15 +13,25 @@
   tasks:
     - name: Set private IP address
       ansible.builtin.set_fact:
-        private_ip: "{{ item }}"
-      loop: "{{ ansible_all_ipv4_addresses | default([]) }}"
+        private_ip: '{{ item }}'
+      loop: '{{ ansible_all_ipv4_addresses | default([]) }}'
       when: not item.startswith('192.168.0') and item.startswith('192.168')
 
     - name: Set public IP address
       ansible.builtin.set_fact:
-        public_ip: "{{ item }}"
-      loop: "{{ ansible_all_ipv4_addresses | default([]) }}"
+        public_ip: '{{ item }}'
+      loop: '{{ ansible_all_ipv4_addresses | default([]) }}'
       when: not item.startswith('192.168') and public_ip is not defined
+
+- name: Read from HCP Vault Secrets
+  hosts: localhost
+  tasks:
+    - name: Authenticate
+      ansible.builtin.include_tasks:
+        file: tasks/hcp-vs-authenticate.yml
+    - name: Read secrets
+      ansible.builtin.include_tasks:
+        file: tasks/hcp-vs-read-vault-secrets.yml
 
 - name: Install cluster
   hosts: cluster
@@ -33,3 +43,36 @@
       role: xanmanning.k3s
       vars:
         k3s_state: installed
+
+- name: Get Kubernetes Service Account Token
+  hosts:
+    - plane-1
+  tasks:
+    - name: Read secret
+      no_log: true
+      changed_when: 1 == 1 # Force task to run every time
+      ansible.builtin.command: "kubectl get secret pipeline-sa-token -n idata-org -o jsonpath='{.data.token}'"
+      register: tmp_k8s_sa_token
+
+    - name: Set fact
+      no_log: true
+      delegate_to: localhost
+      delegate_facts: true
+      ansible.builtin.set_fact:
+        k8s_sa_token: '{{ tmp_k8s_sa_token.stdout }}'
+
+- name: Insert secret to HCP Vault Secrets
+  hosts: localhost
+  tasks:
+    - name: Authenticate
+      ansible.builtin.include_tasks:
+        file: tasks/hcp-vs-authenticate.yml
+
+    - name: Write secret
+      no_log: true
+      vars:
+        request_body:
+          name: PIPELINE_TOKEN
+          value: '{{ k8s_sa_token | b64decode }}'
+      ansible.builtin.include_tasks:
+        file: tasks/hcp-vs-write-secret.yml
