@@ -119,25 +119,29 @@ jobs:
           echo -e "${{secrets.SSH_PRIVATE_KEY}}" > /home/runner/.ssh/id_rsa
           chmod 700 /home/runner/.ssh/id_rsa
 
-      - name: Install python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-
-      - name: Install ansible
+      - name: Test 
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install --user ansible
-          python -m pip install --user jmespath
+          ssh root@192.168.0.2 -J root@172.232.157.107 -o StrictHostKeyChecking=no "date" 
 
-      - name: Install requirements from Ansible galaxy
-        run: ansible-galaxy install -r requirements.yml
+      # - name: Install python
+      #   uses: actions/setup-python@v4
+      #   with:
+      #     python-version: "3.10"
 
-      - name: Run install cluster playbook
-        env:
-          HCP_CLIENT_ID: ${{ secrets.HCP_CLIENT_ID }}
-          HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
-          HCP_VS_ORGANIZATION_ID: ${{ secrets.HCP_VS_ORGANIZATION_ID }}
-          HCP_VS_PROJECT_ID: ${{ secrets.HCP_VS_PROJECT_ID }}
-          HCP_VS_APP_ID: ${{ secrets.HCP_VS_APP_ID }}
-        run: ansible-playbook playbooks/install-cluster.yml -i inventory/hosts.yml
+      # - name: Install ansible
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     python -m pip install --user ansible
+      #     python -m pip install --user jmespath
+
+      # - name: Install requirements from Ansible galaxy
+      #   run: ansible-galaxy install -r requirements.yml
+
+      # - name: Run install cluster playbook
+      #   env:
+      #     HCP_CLIENT_ID: ${{ secrets.HCP_CLIENT_ID }}
+      #     HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
+      #     HCP_VS_ORGANIZATION_ID: ${{ secrets.HCP_VS_ORGANIZATION_ID }}
+      #     HCP_VS_PROJECT_ID: ${{ secrets.HCP_VS_PROJECT_ID }}
+      #     HCP_VS_APP_ID: ${{ secrets.HCP_VS_APP_ID }}
+      #   run: ansible-playbook playbooks/install-cluster.yml -i inventory/hosts.yml
