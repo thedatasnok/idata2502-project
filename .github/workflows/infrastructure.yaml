@@ -60,6 +60,11 @@ jobs:
         working-directory: infrastructure/definition
         run: terraform output -raw ansible_inventory > ../configuration/hosts.yml
 
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions"
+          git config user.email "41898282+github-actions@users.noreply.github.com"
+
       - name: Stage, commit and push inventory changes
         run: |
           git add infrastructure/configuration/inventory/hosts.yml
@@ -76,7 +81,7 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install ansible
         run: |
@@ -112,7 +117,7 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install ansible
         run: |
