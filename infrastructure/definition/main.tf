@@ -195,18 +195,18 @@ data "template_file" "ansible_inventory" {
 
   vars = {
     bastion_ip = tolist(linode_instance.bastion.ipv4)[0]
-    bastion = indent(4, yamlencode({ "${linode_instance.bastion.label}" = {
+    bastion = replace(indent(4, yamlencode({ "${linode_instance.bastion.label}" = {
       ansible_user = "root"
       ansible_host = tolist(linode_instance.bastion.ipv4)[0]
-    } }))
-    controlplane = indent(4, yamlencode({ for plane in linode_instance.control_plane : plane.label => {
+    } })), "\"", "")
+    controlplane = replace(indent(4, yamlencode({ for plane in linode_instance.control_plane : plane.label => {
       ansible_user = "root"
       ansible_host = replace(plane.interface[1].ipam_address, "/24", "")
-    } }))
-    worker = indent(4, yamlencode({ for worker in linode_instance.worker : worker.label => {
+    } })), "\"", "")
+    worker = replace(indent(4, yamlencode({ for worker in linode_instance.worker : worker.label => {
       ansible_user = "root"
       ansible_host = replace(worker.interface[1].ipam_address, "/24", "")
-    } }))
+    } })), "\"", "")
   }
 }
 
