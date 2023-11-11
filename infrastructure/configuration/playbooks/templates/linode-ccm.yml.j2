@@ -5,7 +5,7 @@ metadata:
   namespace: kube-system
 type: Opaque
 data:
-  apiToken: {{ VAULT_LINODE_TOKEN | b64encode }}
+  apiToken: {{ remote_vault.LINODE_TOKEN | b64encode }}
   region: {{ LINODE_REGION | b64encode }} 
 ---
 apiVersion: v1
