@@ -58,7 +58,7 @@ jobs:
 
       - name: Write inventory changes
         working-directory: infrastructure/definition
-        run: terraform output -raw ansible_inventory > ../configuration/hosts.yml
+        run: terraform output -raw ansible_inventory > ../configuration/inventory/hosts.yml
 
       - name: Configure git author
         run: |
@@ -66,10 +66,7 @@ jobs:
           git config user.email "41898282+github-actions@users.noreply.github.com"
 
       - name: Stage, commit and push inventory changes
-        run: |
-          git add infrastructure/configuration/inventory/hosts.yml
-          git commit -m "chore(infrastructure): update inventory hosts file [ci skip]"
-          git push
+        run: tools/conditional-commit-inventory.sh
 
   lint_configuration:
     name: Lint configuration code
