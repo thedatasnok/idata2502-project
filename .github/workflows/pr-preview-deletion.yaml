@@ -9,12 +9,15 @@ jobs:
     name: Delete preview environment
     runs-on: ubuntu-latest
     steps:
-      - name: Set up kubectl
-        uses: azure/k8s-set-context@v1
-        with:
-          k8s-secret: yep
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Delete k8s namespace
-        run: |
-          PREVIEW_ENVIRONMENT_NAMESPACE="github-pr-${{ github.event.pull_request.number }}"
-          kubectl delete namespace $PREVIEW_ENVIRONMENT_NAMESPACE
+      # - name: Set up kubectl
+      #   uses: azure/k8s-set-context@v3
+      #   with:
+      #     k8s-secret: yep
+
+      # - name: Delete k8s namespace
+      #   run: |
+      #     PREVIEW_ENVIRONMENT_NAMESPACE="github-pr-${{ github.event.pull_request.number }}"
+      #     kubectl delete namespace $PREVIEW_ENVIRONMENT_NAMESPACE

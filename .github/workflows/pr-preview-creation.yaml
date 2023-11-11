@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        run:
+        uses: actions/checkout@v4
 
       - name: Build artifacts
-        run:
+        run: echo 'build'
 
       - name: Publish artifacts
-        run:
+        run: echo 'publish'
