@@ -119,9 +119,9 @@ jobs:
           echo -e "${{secrets.SSH_PRIVATE_KEY}}" > /home/runner/.ssh/id_rsa
           chmod 700 /home/runner/.ssh/id_rsa
 
-      - name: Test 
+      - name: Test
         run: |
-          ssh root@192.168.0.2 -J root@172.232.157.107 -o StrictHostKeyChecking=no "date" 
+          ssh root@192.168.0.2 -J root@172.232.157.107 -o StrictHostKeyChecking=no "date"
 
       # - name: Install python
       #   uses: actions/setup-python@v4
