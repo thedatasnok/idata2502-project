@@ -12,7 +12,7 @@ cluster:
     controlplane:
     worker:
   vars:
-    ansible_ssh_common_args: '-o ProxyJump="root@${bastion_ip}"'
+    ansible_ssh_common_args: '-o ProxyJump="root@${bastion_ip}" -o StrictHostKeyChecking=no'
 
 all:
   children:
