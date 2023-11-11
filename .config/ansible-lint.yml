@@ -3,3 +3,4 @@ exclude_paths:
   - infrastructure/configuration/inventory/hosts.yml
   - infrastructure/configuration/vars.yml
   - infrastructure/definition/vars.yml
+  - .github/
