@@ -1,25 +1,35 @@
 ---
-- name: SSH key scan
-  hosts: localhost
+- name: Bastion host SSH key scan
+  hosts: bastion
   tasks:
-    - name: Create known_hosts file
-      ansible.builtin.file:
-        path: /home/runner/.ssh/known_hosts
-        state: touch
-        mode: '0700'
-
     - name: Scan bastion host
-      changed_when: 1 == 2
-      loop: "{{ groups['bastion'] }}"
-      when: item != 'localhost'
-      ansible.builtin.command: ssh-keyscan -H {{ hostvars[item]['ansible_host'] }} >> /home/runner/.ssh/known_hosts
+      delegate_to: localhost
+      changed_when: false
+      register: bastion_keys
+      ansible.builtin.command: ssh-keyscan -H {{ ansible_host }}
 
+    - name: Add bastion to known hosts
+      delegate_to: localhost
+      ansible.builtin.known_hosts:
+        state: present
+        name: '{{ ansible_host }}'
+        key: "{{ bastion_keys.stdout_lines | select('search','^'~item~' .*$') | join('\n') }}"
+
+- name: Cluster hosts SSH key scan
+  hosts: cluster
+  tasks:
     - name: Scan cluster hosts
-      changed_when: 1 == 2
-      loop: "{{ groups['cluster'] }}"
-      when: item != 'localhost'
+      changed_when: false
+      delegate_to: localhost
+      register: cluster_keys
       vars:
         jump_user: "{{ hostvars['bastion-1']['ansible_user'] }}"
         jump_host: "{{ hostvars['bastion-1']['ansible_host'] }}"
-        target_host: "{{ hostvars[item]['ansible_host'] }}"
-      ansible.builtin.command: ssh {{ jump_user }}@{{ jump_host }} "ssh-keyscan -H {{ target_host }}" >> /home/runner/.ssh/known_hosts
+      ansible.builtin.command: ssh {{ jump_user }}@{{ jump_host }} "ssh-keyscan -H {{ ansible_host }}"
+
+    - name: Add cluster hosts to known hosts
+      delegate_to: localhost
+      ansible.builtin.known_hosts:
+        state: present
+        name: '{{ ansible_host }}'
+        key: "{{ cluster_keys.stdout_lines | select('search','^'~item~' .*$') | join('\n') }}"
