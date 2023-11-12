@@ -4,7 +4,7 @@
   tasks:
     - name: Create known_hosts file
       ansible.builtin.file:
-        path: ~/.ssh/known_hosts
+        path: /home/runner/.ssh/known_hosts
         state: touch
         mode: '0700'
 
@@ -12,7 +12,7 @@
       changed_when: 1 == 2
       loop: "{{ groups['bastion'] }}"
       when: item != 'localhost'
-      ansible.builtin.command: ssh-keyscan -H {{ hostvars[item]['ansible_host'] }} >> ~/.ssh/known_hosts
+      ansible.builtin.command: ssh-keyscan -H {{ hostvars[item]['ansible_host'] }} >> /home/runner/.ssh/known_hosts
 
     - name: Scan cluster hosts
       changed_when: 1 == 2
@@ -22,4 +22,4 @@
         jump_user: "{{ hostvars['bastion-1']['ansible_user'] }}"
         jump_host: "{{ hostvars['bastion-1']['ansible_host'] }}"
         target_host: "{{ hostvars[item]['ansible_host'] }}"
-      ansible.builtin.command: ssh {{ jump_user }}@{{ jump_host }} -o StrictHostKeyChecking=no "ssh-keyscan -H {{ target_host }}" >> ~/.ssh/known_hosts
+      ansible.builtin.command: ssh {{ jump_user }}@{{ jump_host }} "ssh-keyscan -H {{ target_host }}" >> /home/runner/.ssh/known_hosts
