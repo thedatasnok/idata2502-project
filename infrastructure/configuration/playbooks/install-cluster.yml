@@ -24,11 +24,12 @@
       when: not item.startswith('192.168') and public_ip is not defined
 
 - name: Read from HCP Vault Secrets
-  hosts: localhost
+  hosts: cluster
   tasks:
     - name: Authenticate
       ansible.builtin.include_tasks:
         file: tasks/hcp-vs-authenticate.yml
+
     - name: Read secrets
       ansible.builtin.include_tasks:
         file: tasks/hcp-vs-read-secrets.yml
@@ -62,7 +63,7 @@
         k8s_sa_token: '{{ tmp_k8s_sa_token.stdout }}'
 
 - name: Insert secret to HCP Vault Secrets
-  hosts: localhost
+  hosts: cluster
   tasks:
     - name: Authenticate
       ansible.builtin.include_tasks:
