@@ -109,9 +109,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # - uses: webfactory/ssh-agent@v0.8.0
-      #   with:
-      #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Prepare SSH client
         run: |
           mkdir -p ~/.ssh/
@@ -138,9 +135,6 @@ jobs:
 
       - name: Install requirements from Ansible galaxy
         run: ansible-galaxy install -r requirements.yml
-
-      - name: Scan host keys
-        run: ansible-playbook playbooks/key-scan.yml -i inventory/hosts.yml
 
       - name: Run install cluster playbook
         env:
