@@ -14,9 +14,10 @@
       ansible.builtin.known_hosts:
         state: present
         name: '{{ ansible_host }}'
-        key: "{{ bastion_keys.stdout_lines }}"
+        key: '{{ bastion_keys.stdout_lines | join("\n") }}'
 
 - name: Cluster hosts SSH key scan
+  gather_facts: false
   hosts: cluster
   tasks:
     - name: Scan cluster hosts
@@ -33,4 +34,4 @@
       ansible.builtin.known_hosts:
         state: present
         name: '{{ ansible_host }}'
-        key: "{{ cluster_keys.stdout_lines }}"
+        key: '{{ cluster_keys.stdout_lines | join("\n") }}'
