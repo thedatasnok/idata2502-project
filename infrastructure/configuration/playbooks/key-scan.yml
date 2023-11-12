@@ -14,7 +14,7 @@
       ansible.builtin.known_hosts:
         state: present
         name: '{{ ansible_host }}'
-        key: "{{ bastion_keys.stdout_lines | select('search','^'~item~' .*$') | join('\n') }}"
+        key: "{{ bastion_keys.stdout_lines }}"
 
 - name: Cluster hosts SSH key scan
   hosts: cluster
@@ -33,4 +33,4 @@
       ansible.builtin.known_hosts:
         state: present
         name: '{{ ansible_host }}'
-        key: "{{ cluster_keys.stdout_lines | select('search','^'~item~' .*$') | join('\n') }}"
+        key: "{{ cluster_keys.stdout_lines }}"
