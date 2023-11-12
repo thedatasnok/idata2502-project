@@ -21,4 +21,5 @@
       vars:
         jump_user: "{{ hostvars['bastion-1']['ansible_user'] }}"
         jump_host: "{{ hostvars['bastion-1']['ansible_host'] }}"
-      ansible.builtin.command: ssh {{ jump_user }}@{{ jump_host }} "ssh-keyscan -H {{ hostvars[item]['ansible_host'] }}" >> ~/.ssh/known_hosts
+        target_host: "{{ hostvars[item]['ansible_host'] }}"
+      ansible.builtin.command: ssh {{ jump_user }}@{{ jump_host }} -o StrictHostKeyChecking=no "ssh-keyscan -H {{ target_host }}" >> ~/.ssh/known_hosts

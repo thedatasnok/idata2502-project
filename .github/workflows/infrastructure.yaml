@@ -134,8 +134,8 @@ jobs:
       - name: Install requirements from Ansible galaxy
         run: ansible-galaxy install -r requirements.yml
 
-      # - name: Scan host keys
-      #   run: ansible-playbook playbooks/key-scan.yml -i inventory/hosts.yml
+      - name: Scan host keys
+        run: ansible-playbook playbooks/key-scan.yml -i inventory/hosts.yml
 
       - name: Run install cluster playbook
         env:
