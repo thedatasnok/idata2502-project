@@ -114,11 +114,12 @@ jobs:
       #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Prepare SSH client
         run: |
-          mkdir -p /home/runner/.ssh/
-          touch /home/runner/.ssh/id_rsa
-          touch /home/runner/.ssh/known_hosts
-          echo -e "${{secrets.SSH_PRIVATE_KEY}}" > /home/runner/.ssh/id_rsa
-          chmod 700 /home/runner/.ssh/id_rsa
+          mkdir -p ~/.ssh/
+          touch ~/.ssh/id_rsa
+          touch ~/.ssh/known_hosts
+          echo -e "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Install python
         uses: actions/setup-python@v4
