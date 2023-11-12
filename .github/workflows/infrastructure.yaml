@@ -114,34 +114,34 @@ jobs:
       #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Prepare SSH client
         run: |
-          mkdir -p /home/runner/.ssh/
-          touch /home/runner/.ssh/id_rsa
-          echo -e "${{secrets.SSH_PRIVATE_KEY}}" > /home/runner/.ssh/id_rsa
-          chmod 700 /home/runner/.ssh/id_rsa
+          mkdir -p ~/.ssh/
+          touch ~/.ssh/id_rsa
+          touch ~/.ssh/known_hosts
+          echo -e "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
+          chmod 700 ~/.ssh/id_rsa
 
-      - name: Test
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install ansible
         run: |
-          ssh root@192.168.0.2 -J root@172.232.157.107 -o StrictHostKeyChecking=no "date"
+          python -m pip install --upgrade pip
+          python -m pip install --user ansible
+          python -m pip install --user jmespath
 
-      # - name: Install python
-      #   uses: actions/setup-python@v4
-      #   with:
-      #     python-version: "3.10"
+      - name: Install requirements from Ansible galaxy
+        run: ansible-galaxy install -r requirements.yml
 
-      # - name: Install ansible
-      #   run: |
-      #     python -m pip install --upgrade pip
-      #     python -m pip install --user ansible
-      #     python -m pip install --user jmespath
+      - name: Scan host keys
+        run: ansible-playbook playbooks/key-scan.yml -i inventory/hosts.yml
 
-      # - name: Install requirements from Ansible galaxy
-      #   run: ansible-galaxy install -r requirements.yml
-
-      # - name: Run install cluster playbook
-      #   env:
-      #     HCP_CLIENT_ID: ${{ secrets.HCP_CLIENT_ID }}
-      #     HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
-      #     HCP_VS_ORGANIZATION_ID: ${{ secrets.HCP_VS_ORGANIZATION_ID }}
-      #     HCP_VS_PROJECT_ID: ${{ secrets.HCP_VS_PROJECT_ID }}
-      #     HCP_VS_APP_ID: ${{ secrets.HCP_VS_APP_ID }}
-      #   run: ansible-playbook playbooks/install-cluster.yml -i inventory/hosts.yml
+      - name: Run install cluster playbook
+        env:
+          HCP_CLIENT_ID: ${{ secrets.HCP_CLIENT_ID }}
+          HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
+          HCP_VS_ORGANIZATION_ID: ${{ secrets.HCP_VS_ORGANIZATION_ID }}
+          HCP_VS_PROJECT_ID: ${{ secrets.HCP_VS_PROJECT_ID }}
+          HCP_VS_APP_ID: ${{ secrets.HCP_VS_APP_ID }}
+        run: ansible-playbook playbooks/install-cluster.yml -i inventory/hosts.yml
