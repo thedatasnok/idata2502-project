@@ -167,7 +167,7 @@ resource "linode_firewall" "cluster_firewall" {
   }
 
   inbound {
-    label    = "tcp-any-inbound-allow-nodebalancer"
+    label    = "tcp-any-inbound-allow-nb"
     action   = "ACCEPT"
     protocol = "TCP"
     ports    = "1-65535"
