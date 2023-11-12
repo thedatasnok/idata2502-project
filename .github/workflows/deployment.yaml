@@ -2,6 +2,8 @@ name: Deploy production environment
 
 on:
   push:
+    tags:
+      - "*"
     branches:
       - main
 
