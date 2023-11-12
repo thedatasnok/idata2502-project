@@ -1,6 +1,7 @@
 ---
 - name: Bastion host SSH key scan
   hosts: bastion
+  gather_facts: false
   tasks:
     - name: Scan bastion host
       delegate_to: localhost
