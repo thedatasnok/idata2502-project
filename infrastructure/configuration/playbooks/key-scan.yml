@@ -13,6 +13,7 @@
       delegate_to: localhost
       ansible.builtin.known_hosts:
         state: present
+        path: /home/github/.ssh/known_hosts
         name: '{{ ansible_host }}'
         key: '{{ bastion_keys.stdout_lines | join("\n") }}'
 
@@ -33,5 +34,6 @@
       delegate_to: localhost
       ansible.builtin.known_hosts:
         state: present
+        path: /home/github/.ssh/known_hosts
         name: '{{ ansible_host }}'
         key: '{{ cluster_keys.stdout_lines | join("\n") }}'
