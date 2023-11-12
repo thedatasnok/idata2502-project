@@ -144,4 +144,5 @@ jobs:
           HCP_VS_ORGANIZATION_ID: ${{ secrets.HCP_VS_ORGANIZATION_ID }}
           HCP_VS_PROJECT_ID: ${{ secrets.HCP_VS_PROJECT_ID }}
           HCP_VS_APP_ID: ${{ secrets.HCP_VS_APP_ID }}
+          ANSIBLE_HOST_KEY_CHECKING: False
         run: ansible-playbook playbooks/install-cluster.yml -i inventory/hosts.yml
