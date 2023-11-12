@@ -120,6 +120,10 @@ jobs:
           echo -e "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           chmod 600 ~/.ssh/known_hosts
+          cat >>~/.ssh/config <<END
+          Host *
+            StrictHostKeyChecking no
+          END
 
       - name: Install python
         uses: actions/setup-python@v4
