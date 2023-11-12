@@ -55,16 +55,6 @@
       ansible.builtin.command: "kubectl get secret pipeline-sa-token -n idata-org -o jsonpath='{.data.token}'"
       register: tmp_k8s_sa_token
 
-    - name: Set fact
-      no_log: true
-      delegate_to: localhost
-      delegate_facts: true
-      ansible.builtin.set_fact:
-        k8s_sa_token: '{{ tmp_k8s_sa_token.stdout }}'
-
-- name: Insert secret to HCP Vault Secrets
-  hosts: cluster
-  tasks:
     - name: Authenticate
       ansible.builtin.include_tasks:
         file: tasks/hcp-vs-authenticate.yml
@@ -74,6 +64,6 @@
       vars:
         request_body:
           name: PIPELINE_TOKEN
-          value: '{{ k8s_sa_token | b64decode }}'
+          value: '{{ tmp_k8s_sa_token.stdout | b64decode }}'
       ansible.builtin.include_tasks:
         file: tasks/hcp-vs-write-secret.yml
