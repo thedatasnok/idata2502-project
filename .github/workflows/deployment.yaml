@@ -67,7 +67,7 @@ jobs:
     steps:
       - name: Attempt a HTTP request to K8S api
         run: |
-          if curl -s --fail ${{ env.K8S_URL }} -o /dev/null; then
+          if curl -s --fail ${{ vars.K8S_URL }} -o /dev/null; then
             echo "Cluster API is responding"
           else
             echo "Cluster API did not respond, aborting the workflow."
@@ -85,6 +85,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Deploy environment
+        uses: ./.github/actions/deploy-environment
+        with:
+          environment: staging
+          k8s-url: ${{ vars.K8S_URL }}
+          k8s-secret: ${{ secrets.PIPELINE_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          hostname: ${{ vars.HOSTNAME }}
+          cluster-issuer: letsencrypt
+          tag: ${{ github.ref }}
+
   deploy_production:
     name: Deploy to production
     needs: deploy_staging
@@ -93,3 +104,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Deploy environment
+        uses: ./.github/actions/deploy-environment
+        with:
+          environment: production
+          k8s-url: ${{ vars.K8S_URL }}
+          k8s-secret: ${{ secrets.PIPELINE_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          hostname: ${{ vars.HOSTNAME }}
+          cluster-issuer: letsencrypt
+          tag: ${{ github.ref }}

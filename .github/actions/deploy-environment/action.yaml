@@ -1,0 +1,60 @@
+name: Deploy environment
+description: Reusable action for deploying the application to a given environment
+
+inputs:
+  environment:
+    description: The name of the environment to deploy to
+    required: true
+  k8s-url:
+    description: The URL of the k8s api to use
+    required: true
+  k8s-secret:
+    description: The secret to use for making changes in k8s
+    required: true
+  github-token:
+    description: The GitHub token to use for installing Helm without being rate limited
+    required: true
+  hostname:
+    description: The hostname to deploy to
+    required: true
+  cluster-issuer:
+    description: The cluster issuer to use for ingress TLS certificates
+    required: true
+  tag:
+    description: The tag to use for finding candidate images
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: azure/setup-kubectl@v3
+
+    - uses: azure/k8s-set-context@v3
+      with:
+        method: service-account
+        k8s-url: ${{ inputs.k8s-url }}
+        k8s-secret: ${{ inputs.k8s-secret }}
+
+    - uses: azure/setup-helm@v3
+      with:
+        token: ${{ inputs.github-token }}
+
+    - name: Add target namespace
+      shell: bash
+      run: |
+        kubectl apply -f - <<EOF
+        apiVersion: hnc.x-k8s.io/v1alpha2
+        kind: SubnamespaceAnchor
+        metadata:
+          namespace: idata-org
+          name: ${{ inputs.environment }}
+        EOF
+
+    - run: |
+        helm upgrade ${{ inputs.namespace }} ./helm \
+          --install \
+          --namespace ${{ inputs.namespace }} \
+          --set hostname=${{ inputs.hostname }} \
+          --set clusterIssuer=${{ inputs.cluster-issuer }} \
+          --set version=${{ inputs.tag }}
+      shell: bash
