@@ -52,7 +52,7 @@
     - name: Read secret
       no_log: true
       changed_when: 1 == 1 # Force task to run every time
-      ansible.builtin.command: "kubectl get secret pipeline-sa-token -n idata-org -o jsonpath='{.data.token}'"
+      ansible.builtin.command: "kubectl get secret pipeline-sa-token -n idata-org -o yaml"
       register: tmp_k8s_sa_token
 
     - name: Authenticate
@@ -64,6 +64,6 @@
       vars:
         request_body:
           name: PIPELINE_TOKEN
-          value: '{{ tmp_k8s_sa_token.stdout | b64decode }}'
+          value: '{{ tmp_k8s_sa_token.stdout }}'
       ansible.builtin.include_tasks:
         file: tasks/hcp-vs-write-secret.yml
