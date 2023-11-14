@@ -5,7 +5,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts",
     "db:generate": "bun drizzle-kit generate:pg",
-    "db:migrate": "bun run src/db/migrate.ts"
+    "db:migrate": "bun run src/db/migrate.ts",
+    "start": "bun run src/index.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.28.6",
