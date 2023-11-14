@@ -60,5 +60,5 @@ pipx inject ansible jmespath
 4. Run a playbook
 
 ```
-ansible-playbook playbooks/install-cluster.yml -i inventory/hosts.yml --vault-id prod@vault_pass.txt
+ansible-playbook playbooks/install-cluster.yml -i inventory/hosts.yml
 ```
