@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "frontend.name" . }}
+  labels:
+    {{ include "chart.labels" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "frontend.name" . }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "frontend.name" . }}
+    spec:
+      containers:
+      - name: {{ include "frontend.name" . }}
+        image: "ghcr.io/thedatasnok/idata2502-project-frontend:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        ports: 
+        - containerPort: {{ include "frontend.port" . }}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ include "frontend.port" . }}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ include "frontend.port" . }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "frontend.name" . }}
+  labels:
+    {{ include "chart.labels" . }}
+spec:
+  selector:
+    app: {{ include "frontend.name" . }}
+  ports:
+  - port: {{ include "frontend.port" . }}
+    targetPort: {{ include "frontend.port" . }}
+    protocol: TCP

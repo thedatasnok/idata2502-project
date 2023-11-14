@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "postgres.name" . }}-data
+spec:
+  accessModes: 
+  - ReadWriteOnce
+  resources: 
+    requests: 
+      storage: 3Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "postgres.name" . }}
+type: Opaque
+data:
+  POSTGRES_USER: {{ "idata" | b64enc }} 
+  {{- $secretObj := (lookup "v1" "Secret" .Release.Namespace (include "postgres.name" .) ) | default dict }}
+  {{- $secretData := (get $secretObj "data") | default dict }}
+  {{- $postgresPassword := (get $secretData "POSTGRES_PASSWORD") | default (randAlphaNum 48 | b64enc) }}
+  POSTGRES_PASSWORD: {{ $postgresPassword | quote }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "postgres.name" . }}
+  labels:
+    {{ include "chart.labels" . }}
+spec:
+  serviceName: {{ include "postgres.name" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "postgres.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "postgres.name" . }}
+    spec:
+      containers:
+      - name: {{ include "postgres.name" . }}
+        image: "postgres:alpine"
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: postgres
+            containerPort: {{ include "postgres.port" . }}
+            protocol: TCP
+        envFrom:
+          - secretRef:
+              name: {{ include "postgres.name" . }}
+        env:
+          - name: POSTGRES_DB
+            value: {{ include "postgres.database" . }}
+        volumeMounts:
+          - name: {{ include "postgres.name" . }}-data
+            mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: {{ include "postgres.name" . }}-data
+        persistentVolumeClaim:
+          claimName: {{ include "postgres.name" . }}-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "postgres.name" . }}
+  labels:
+    {{ include "chart.labels" . }}
+spec:
+  selector:
+    app: {{ include "postgres.name" . }}
+  ports:
+  - port: {{ include "postgres.port" . }}
+    targetPort: {{ include "postgres.port" . }}
+    protocol: TCP

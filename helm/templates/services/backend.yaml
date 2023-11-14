@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "backend.name" . }}
+  labels:
+    {{ include "chart.labels" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "backend.name" . }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "backend.name" . }}
+    spec:
+      containers:
+      - name: {{ include "backend.name" . }}
+        image: "ghcr.io/thedatasnok/idata2502-project-backend:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        ports: 
+        - containerPort: {{ include "backend.port" . }}
+        envFrom:
+          - secretRef:
+              name: {{ include "postgres.name" . }}
+        env:
+          - name: POSTGRES_DB
+            value: {{ include "postgres.database" . }}
+          - name: POSTGRES_HOST
+            value: {{ include "postgres.name" . }}
+          - name: POSTGRES_PORT
+            value: {{ include "postgres.port" . | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backend.name" . }}
+  labels:
+    {{ include "chart.labels" . }}
+spec:
+  selector:
+    app: {{ include "backend.name" . }}
+  ports:
+  - port: {{ include "backend.port" . }}
+    targetPort: {{ include "backend.port" . }}
+    protocol: TCP
