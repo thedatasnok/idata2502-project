@@ -48,7 +48,7 @@ jobs:
           file: services/backend/Dockerfile
           push: true
           tags: |
-            ghcr.io/thedatasnok/idata2502-project-backend:${{ github.ref }}
+            ghcr.io/thedatasnok/idata2502-project-backend:${{ github.sha }}
             ghcr.io/thedatasnok/idata2502-project-backend:latest
 
       - name: Build and push backend container image
@@ -58,7 +58,7 @@ jobs:
           file: services/frontend/Dockerfile
           push: true
           tags: |
-            ghcr.io/thedatasnok/idata2502-project-frontend:${{ github.ref }}
+            ghcr.io/thedatasnok/idata2502-project-frontend:${{ github.sha }}
             ghcr.io/thedatasnok/idata2502-project-frontend:latest
 
   check_infrastructure_ready:
@@ -94,7 +94,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           hostname: ${{ vars.HOSTNAME }}
           cluster-issuer: letsencrypt
-          tag: ${{ github.ref }}
+          tag: ${{ github.sha }}
 
   deploy_production:
     name: Deploy to production
@@ -114,4 +114,4 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           hostname: ${{ vars.HOSTNAME }}
           cluster-issuer: letsencrypt
-          tag: ${{ github.ref }}
+          tag: ${{ github.sha }}
