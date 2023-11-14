@@ -67,7 +67,7 @@ jobs:
     steps:
       - name: Attempt a HTTP request to K8S api
         run: |
-          response=$(curl -s -o /dev/null -I -w "%{http_code}" https://apsi.cloud.overlien.no/)
+          response=$(curl -s -o /dev/null -I -w "%{http_code}" ${{ vars.K8S_URL }})
           if [ $? -eq 0 ]; then
             echo "Service is responding. Response code: $response"
           else
