@@ -5,20 +5,8 @@
 ## Motivation
 
 As part of the course IDATA2502 Cloud service administration, we are tasked to create a portfolio project.
-The portfolio project is open-ended, allowing for us to define our own scopes and goals.
-
-During software development, we may end up making rapid changes that can be hard to validate.
-By empowering testing methodologies and continuous integration, we can ensure that our are compatible with the rest of the system.
-However, some changes may need customer feedback and/or validation from product specialists.
-In order to accomplish this, we need to be able to deploy our changes to an environment, where these changes can be seen.
-Deploying such changes to a production environment however, may be considered harmful to the business.
-
-In order to solve this, we can create strategies for spawning environments as we need them to help in communicating the changes made.
-Utilizing modern Infrastructure as Code solutions, we can automate the creation of such environments and ensure that they are almost identical to the production environment.
-It will be necessary to have some key differentiators, such as domain names used potentially databases.
-
-A simple way to accomplish this is by having separate stages. A simplistic approach to this is to have a staging environment and a production environment, whereas staging is meant to help in communicating changes to stakeholders.
-This is a good and often satisfactory approach, but in some cases it may be nice to have one-off environments to preview changes that are not yet ready for staging.
+The portfolio project rather is open-ended, allowing for us to define our own scopes and goals.
+In my case, I wanted to create a pipeline for deploying a full stack web application on highly available infrastructure.
 
 ## Tools
 
@@ -33,7 +21,7 @@ In this project I use it for provisioning the environment.
 ### Ansible
 
 Ansible is a tool for configuration management.
-In this projecet I use it for configuring the environment after nodes are provisioned.
+In this project I use it for configuring the environment after nodes are provisioned by Terraform.
 In addition, Ansible is masterless making it well suited for a idempotent pipeline.
 
 ### Linode
@@ -41,10 +29,14 @@ In addition, Ansible is masterless making it well suited for a idempotent pipeli
 Linode is the hosting provider of choice, it offers a relatively cheap pricing model and has APIs that Terraform can interact with.
 This should be interchangable, but would require some setup for other cloud providers as well.
 
-### MicroK8s
+### K3s
 
 Kubernetes itself may be challenging to set up on its own, using [kubeadm].
-To simplify the process of creating a Kubernetes cluster, I use MicroK8s as it is a shorter path of success.
+To simplify the process of creating a Kubernetes cluster, I use the K3s distribution as it is a shorter path of success.
+
+### Helm 3
+
+Helm is a package manager for Kubernetes, it allows for templating and packaging of Kubernetes resources. In this project I use it for templating the application resources when deploying to Kubernetes.
 
 ### GitHub Actions
 
@@ -57,64 +49,38 @@ Other options include GitLab CI/CD, Jenkins, Travis CI and CircleCI, but I chose
 This project facilitates the idea of a multiworkflow pipeline, where each workflow is responsible for a separate thing.
 This is a result of different criteria for the frequency of runs of each workflow.
 
-For instance the infrastructure pipeline does not have to be run unless there is a change in the infrastructure definition.
+For instance the infrastructure pipeline does not have to be run unless there is a change in the infrastructure definition, where as the application deployment pipeline may be run on every push to the repository.
 
-### Pull request preview workflows
+### Infrastructure pipeline
 
-```mermaid
-flowchart TB
+The infrastructure pipeline is responsible for provisioning the infrastructure that the application will be deployed on.
+A set of nodes will be created, and Ansible will be used to configure the nodes.
 
-  DEVELOPER_CREATES_PR(("Developer creates PR"))
+#### Results
 
-  DEVELOPER_CREATES_PR --> DEVELOPER_DECIDES_PREVIEW{"
-    Developer decides need of a preview
-  "}
+![](assets/infrastructure-pipeline.png)
 
-  DEVELOPER_DECIDES_PREVIEW -- yes --> DEVELOPER_REQUESTS_PREVIEW["
-    Developer requests preview
-    with !preview comment
-  "]
+#### Security considerations
 
-  DEVELOPER_DECIDES_PREVIEW -- no --> DEVELOPER_REQUESTS_REVIEW["
-    Developer requests review
-    from maintainer(s)
-  "]
+The pipeline creates a set of nodes, they are preconfigured with `authorized_keys` for the user `root`, that will be used to run Ansible playbooks.
+Private keys for the authorized keys are stored as GitHub secrets, and on my local machine. Public keys are defined in a shared [variable file](../infrastructure/configuration/vars.yml).
 
-  DEVELOPER_REQUESTS_REVIEW --> REVIEWER_WANTS_PREVIEW{"
-    Reviewer wants preview
-  "}
+Strict host key checking is disabled for SSH connections made from GitHub Actions. This may potentially leave the pipeline vulnerable to man-in-the-middle attacks. To mitigate this we could manually verify the host keys or push them using a provisioner in Terraform to a central store. This would however require more work and has not been a priority for this project.
 
-  REVIEWER_WANTS_PREVIEW -- yes --> REVIEWER_REQUESTS_PREVIEW["
-    Reviewer requests preview
-    with !preview comment
-  "]
+### Continuous integration pipeline
 
-  REVIEWER_WANTS_PREVIEW -- no --> REVIEWER_APPROVES["
-    Reviewer approves PR
-  "]
+The continuous integration pipeline is responsible for making sure the application builds and passes tests.
+In addition it is responsible for linting the code, and making sure that the code is formatted according to the set style guide.
 
-  REVIEWER_APPROVES --> MAINTAINER_MERGES["
-    Maintainer merges PR
-  "]
+The pipeline is run on every push to the repository, and on pull requests.
+The backend service relies on the existence of a Postgres database, which is defined as a service in the pipeline.
+Initially, the plan was to utilize [Testcontainers][testcontainers-node] for this, but it was not possible to interact with the Docker runtime in [Bun][bun].
 
-  MAINTAINER_MERGES --> PULL_REQUEST_MERGED["Pull request merged"]
+### Deployment pipeline
 
-  DEVELOPER_REQUESTS_PREVIEW --> PREVIEW_CREATION["Preview environment creation workflow"]
-  REVIEWER_REQUESTS_PREVIEW --> PREVIEW_CREATION
+The deployment pipeline is responsible for delivering the application to the infrastructure, in different stages.
+Deployment is split into two stages, staging and production. Staging acts as a pre-production environment, where changes can be verified before they are deployed to production. Staging deployments are automatic, when changes are made on the `main` branch in the repository. The production environment on the other hand, requires manual approval before it is deployed to.
 
-  PREVIEW_CREATION --> PREVIEW_LINK["Workflow reports preview link"]
-
-  PREVIEW_LINK --> REVIEW{"Review"}
-
-  REVIEW -- looks good --> MAINTAINER_MERGES
-
-  REVIEW -- needs change --> DEVELOPER_UPDATES_PR["
-    Developer updates PR
-  "]
-
-  DEVELOPER_UPDATES_PR --> DEVELOPER_REQUESTS_PREVIEW
-
-  PULL_REQUEST_MERGED --> PREVIEW_DELETION["Preview deletion workflow"]
-```
-
-[kubeadm]: https://sonofdog
+[bun]: https://bun.sh/
+[kubeadm]: https://kubernetes.io/docs/reference/setup-tools/kubeadm/
+[testcontainers-node]: https://node.testcontainers.org/
