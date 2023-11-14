@@ -12,6 +12,7 @@ on:
 
 jobs:
   continuous_integration:
+    name: CI
     uses: ./.github/workflows/ci.yaml
 
   build_artifacts:
