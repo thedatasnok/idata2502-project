@@ -9,6 +9,7 @@ on:
     paths:
       - services/backend/**
       - services/frontend/**
+  workflow_dispatch:
 
 jobs:
   continuous_integration:
