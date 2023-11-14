@@ -64,9 +64,14 @@ jobs:
     name: Check if infrastructure is ready
     runs-on: ubuntu-latest
     steps:
-      - name: Send HTTP request to K8S api
+      - name: Attempt a HTTP request to K8S api
         run: |
-          curl ${{ env.K8S_URL }}
+          if curl -s --fail ${{ env.K8S_URL }} -o /dev/null; then
+            echo "Cluster API is responding"
+          else
+            echo "Cluster API did not respond, aborting the workflow."
+            exit 1
+          fi
 
   deploy_staging:
     name: Deploy to staging
