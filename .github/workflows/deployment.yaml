@@ -22,6 +22,7 @@ jobs:
       - continuous_integration
     permissions:
       packages: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
