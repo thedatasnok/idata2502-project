@@ -51,7 +51,7 @@ jobs:
             ghcr.io/thedatasnok/idata2502-project-backend:${{ github.sha }}
             ghcr.io/thedatasnok/idata2502-project-backend:latest
 
-      - name: Build and push backend container image
+      - name: Build and push frontend container image
         uses: docker/build-push-action@v3
         with:
           context: .
@@ -67,10 +67,11 @@ jobs:
     steps:
       - name: Attempt a HTTP request to K8S api
         run: |
-          if curl -s --fail ${{ vars.K8S_URL }} -o /dev/null; then
-            echo "Cluster API is responding"
+          response=$(curl -s -o /dev/null -I -w "%{http_code}" https://apsi.cloud.overlien.no/)
+          if [ $? -eq 0 ]; then
+            echo "Service is responding. Response code: $response"
           else
-            echo "Cluster API did not respond, aborting the workflow."
+            echo "Failed to connect to the service, stopping the workflow."
             exit 1
           fi
 
