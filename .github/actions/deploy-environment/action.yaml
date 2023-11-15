@@ -42,7 +42,7 @@ runs:
     - name: Add target namespace
       shell: bash
       run: |
-        kubectl apply -f - <<EOF
+        kubectl apply --insecure-skip-tls-verify -f - <<EOF
         apiVersion: hnc.x-k8s.io/v1alpha2
         kind: SubnamespaceAnchor
         metadata:
@@ -52,6 +52,7 @@ runs:
 
     - run: |
         helm upgrade ${{ inputs.namespace }} ./helm \
+          --kube-insecure-skip-tls-verify \
           --install \
           --namespace ${{ inputs.namespace }} \
           --set hostname=${{ inputs.hostname }} \
