@@ -51,10 +51,10 @@ runs:
         EOF
 
     - run: |
-        helm upgrade ${{ inputs.namespace }} ./helm \
+        helm upgrade ${{ inputs.environment }} ./helm \
           --kube-insecure-skip-tls-verify \
           --install \
-          --namespace ${{ inputs.namespace }} \
+          --namespace ${{ inputs.environment }} \
           --set hostname=${{ inputs.hostname }} \
           --set clusterIssuer=${{ inputs.cluster-issuer }} \
           --set version=${{ inputs.tag }}
