@@ -139,6 +139,10 @@ To assure that quality is maintained, the pipeline will also re-run the CI pipel
 
 ![](assets/application-pipeline.png)
 
+#### Security considerations
+
+tbd.
+
 ## Conclusion
 
 tbd.
