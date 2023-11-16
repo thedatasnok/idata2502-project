@@ -2,6 +2,13 @@
 
 ## Table of Contents
 
+[Motivation](#motivation)  
+[Tools](#tools)  
+[VM infrastructure](#vm-infrastructure)  
+[K8s infrastructure](#k8s-infrastructure)  
+[Pipeline](#pipeline)  
+[Conclusion](#conclusion)
+
 ## Motivation
 
 As part of the course IDATA2502 Cloud service administration, we are tasked to create a portfolio project.
@@ -44,6 +51,45 @@ In order to automate the pipeline, I use GitHub Actions.
 It is a CI/CD tool that is built into GitHub, and is free for open source projects.
 Other options include GitLab CI/CD, Jenkins, Travis CI and CircleCI, but I chose GitHub Actions as it is built into GitHub and has a wide range of community-made actions.
 
+## VM infrastructure
+
+The infrastructure is built up with a set of virtual machines, that are all placed within the same virtual network. They also have their own public IP addresses.
+External traffic goes through a firewall and potentially a loadbalancer depending on the task in hand. For management, a bastion host is used to unify access to the nodes. The loadbalancer is typically used for web traffic to cluster resources.
+
+The firewall rules are set up to allow traffic from anywhere from web traffic.
+
+![](infrastructure-vms.drawio.svg)
+
+## K8s infrastructure
+
+Selected nodes are used to form a Kubernetes cluster, using the K3s distribution.
+A subset of the nodes are installed as control plane nodes, and another subset as worker nodes.
+The control plane nodes are responsible for managing the cluster, and the worker nodes are responsible for running the workloads in the cluster.
+
+The cluster is configured to allow a single control plane failure. [The etcd FAQ][etcd-faq] recommends odd-numbered clusters for failure tolerance as they will allow the same number of failure nodes with fewer nodes. The decision to set three is to allow a single node failure, while still balancing expenses to be within the free quota.
+
+There is a few extras installed in the cluster when running the Ansible playbook. These are:
+
+- [cert-manager][cert-manager] for managing certificates
+- [NGINX Ingress Controller][nginx-ingress] for routing web traffic to cluster resources
+- [External DNS][external-dns] for managing DNS records
+- [Kubernetes dashboard][kubernetes-dashboard] for a visual overview of cluster resources
+- [Hierarchical namespaces controller][kubernetes-hnc] for a more complex namespace structure
+- [Longhorn][longhorn] for storage
+- [Linode CCM][linode-ccm] for Linode NodeBalancer integration
+
+This list can also be found in the [controlplane group_vars](../infrastructure/configuration/inventory/group_vars/controlplane/main.yml).
+
+The following figure attempts to illustrate the Kubernetes install after applications are deployed to it.
+
+![](infrastructure-k8s.drawio.svg)
+
+The cluster itself is installed using a k3s Ansible role. The role installs k3s on control planes and worker nodes, and registers secondary nodes to the elected primary control node.
+
+The application resources are defined as Helm templates. The services forming the application register necessary ingress definitions, and are as a result exposed to the internet. External DNS handles registering the domain names, and cert-manager handles issuing certificates for said domains.
+
+The hierarchical namespace controller is used to better organize access to the cluster. This allows us to set up a parent namespace on cluster install, in which the application environments can be grouped by namespaces within. It allows using RBAC to grant access to the parent namespace for a Service Account. This service account can then be used to deploy resources within the parent namespace.
+
 ## Pipeline
 
 This project facilitates the idea of a multiworkflow pipeline, where each workflow is responsible for a separate thing.
@@ -76,11 +122,35 @@ The pipeline is run on every push to the repository, and on pull requests.
 The backend service relies on the existence of a Postgres database, which is defined as a service in the pipeline.
 Initially, the plan was to utilize [Testcontainers][testcontainers-node] for this, but it was not possible to interact with the Docker runtime in [Bun][bun].
 
-### Deployment pipeline
+#### Results
 
-The deployment pipeline is responsible for delivering the application to the infrastructure, in different stages.
+![](assets/ci-pipeline.png)
+
+### Application deployment pipeline
+
+The application deployment pipeline is responsible for delivering the application to the infrastructure, in different stages.
 Deployment is split into two stages, staging and production. Staging acts as a pre-production environment, where changes can be verified before they are deployed to production. Staging deployments are automatic, when changes are made on the `main` branch in the repository. The production environment on the other hand, requires manual approval before it is deployed to.
 
+Prior to deploying the application it will check that the infrastructure is in place by sending a simple HTTP request to the API server. If the request fails, it will not attempt the deployments.
+
+To assure that quality is maintained, the pipeline will also re-run the CI pipeline prior to building and publishing artifacts for deployment.
+
+#### Results
+
+![](assets/application-pipeline.png)
+
+## Conclusion
+
+tbd.
+
 [bun]: https://bun.sh/
+[cert-manager]: https://cert-manager.io/
+[external-dns]: https://github.com/kubernetes-sigs/external-dns
+[etcd-faq]: https://etcd.io/docs/v3.6/faq/#what-is-failure-tolerance
 [kubeadm]: https://kubernetes.io/docs/reference/setup-tools/kubeadm/
+[kubernetes-dashboard]: https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
+[kubernetes-hnc]: https://github.com/kubernetes-sigs/hierarchical-namespaces
+[longhorn]: https://longhorn.io/
+[linode-ccm]: https://github.com/linode/linode-cloud-controller-manager
+[nginx-ingress]: https://kubernetes.github.io/ingress-nginx/
 [testcontainers-node]: https://node.testcontainers.org/
