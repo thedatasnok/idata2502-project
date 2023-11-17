@@ -16,6 +16,7 @@ The project is split into two parts, `infrastructure` and `services`.
 
 ```bash
 ├───docs              # documentation
+├───helm              # helm chart
 ├───infrastructure
 │   ├───configuration # ansible
 │   └───definition    # terraform
