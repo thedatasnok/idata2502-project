@@ -33,7 +33,7 @@ jobs:
         run: bun lint:backend
 
   lint_frontend:
-    name: Lint backend service
+    name: Lint frontend service
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,8 +45,8 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Lint backend
-        run: bun lint:backend
+      - name: Lint frontend
+        run: bun lint:frontend
 
   test_backend:
     name: Test backend service
