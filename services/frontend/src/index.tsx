@@ -6,4 +6,5 @@ import App from './App';
 
 const root = document.getElementById('root');
 
+// biome-ignore lint: invalid types if not
 render(() => <App />, root!);
