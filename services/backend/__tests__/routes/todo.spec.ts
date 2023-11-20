@@ -4,10 +4,10 @@ import Elysia from 'elysia';
 
 type RequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-const createApiRequest = (
+const createApiRequest = <T extends object>(
   relativeUrl: string,
   method: RequestMethod,
-  body?: any
+  body?: T
 ) => {
   return new Request(`http://localhost${relativeUrl}`, {
     method,
@@ -31,9 +31,7 @@ describe('Todo routes', () => {
   });
 
   it('returns an empty list before insertion', async () => {
-    const request = new Request('http://localhost/api/v1/todos', {
-      method: 'GET',
-    });
+    const request = createApiRequest('/api/v1/todos', 'GET');
 
     const response = await elysia.handle(request);
     const body = await response.json();
@@ -96,15 +94,15 @@ describe('Todo routes', () => {
     expect(body.completed).toBe(true);
   });
 
-  // it('can delete a todo by id', async () => {
-  //   const request = createApiRequest(
-  //     `/api/v1/todos/${createdTodoId}`,
-  //     'DELETE'
-  //   );
-  //   const response = await elysia.handle(request);
-  //   const body = await response.json();
+  it('can delete a todo by id', async () => {
+    const request = createApiRequest(
+      `/api/v1/todos/${createdTodoId}`,
+      'DELETE'
+    );
+    const response = await elysia.handle(request);
+    const body = await response.json();
 
-  //   expect(body).not.toBeNull();
-  //   expect(body.id).toBe(createdTodoId);
-  // });
+    expect(body).not.toBeNull();
+    expect(body.id).toBe(createdTodoId);
+  });
 });
