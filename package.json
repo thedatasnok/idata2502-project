@@ -1,7 +1,14 @@
 {
   "name": "workspace",
   "version": "0.0.0",
+  "scripts": {
+    "lint:frontend": "biome lint ./services/frontend/src",
+    "lint:backend": "biome lint ./services/backend/src ./services/backend/__tests__"
+  },
   "workspaces": [
     "services/*"
-  ]
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "1.3.3"
+  }
 }
