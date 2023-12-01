@@ -57,6 +57,10 @@ pipx inject ansible jmespath
 
 3. Prepare environment variables, see [.env.example](configuration/.env.example) and [register-env.sh](configuration/register-env.sh)
 
+```bash
+source register-env.sh
+```
+
 4. Run a playbook
 
 ```
