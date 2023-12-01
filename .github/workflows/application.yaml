@@ -90,8 +90,7 @@ jobs:
         uses: ./.github/actions/deploy-environment
         with:
           environment: staging
-          k8s-url: ${{ vars.K8S_URL }}
-          k8s-secret: ${{ secrets.PIPELINE_TOKEN }}
+          kubeconfig: ${{ secrets.PIPELINE_KUBECONFIG }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           hostname: ${{ vars.HOSTNAME }}
           cluster-issuer: letsencrypt
@@ -110,8 +109,7 @@ jobs:
         uses: ./.github/actions/deploy-environment
         with:
           environment: production
-          k8s-url: ${{ vars.K8S_URL }}
-          k8s-secret: ${{ secrets.PIPELINE_TOKEN }}
+          kubeconfig: ${{ secrets.PIPELINE_KUBECONFIG }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           hostname: ${{ vars.HOSTNAME }}
           cluster-issuer: letsencrypt

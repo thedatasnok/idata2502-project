@@ -48,11 +48,13 @@
 - name: Get Kubernetes Service Account Token
   hosts:
     - plane-1
+  vars_files:
+    - ../vars.yml
   tasks:
     - name: Read secret
       no_log: true
       changed_when: 1 == 1 # Force task to run every time
-      ansible.builtin.command: "kubectl get secret pipeline-sa-token -n idata-org -o yaml"
+      ansible.builtin.command: "kubectl get secret pipeline-sa-token -n idata-org -o jsonpath='{.data.token}'"
       register: tmp_k8s_sa_token
 
     - name: Authenticate
@@ -62,8 +64,27 @@
     - name: Write secret
       no_log: true
       vars:
+        body_yaml:
+          apiVersion: v1
+          kind: Config
+          clusters:
+            - cluster:
+                server: https://api.{{ DOMAIN_ROOT }}/
+              name: cluster
+          contexts:
+            - context:
+                cluster: cluster
+                namespace: idata-org
+                user: admin
+              name: cluster
+          current-context: cluster
+          preferences: {}
+          users:
+            - name: admin
+              user:
+                token: '{{ tmp_k8s_sa_token.stdout | b64decode }}'
         request_body:
-          name: PIPELINE_TOKEN
-          value: '{{ tmp_k8s_sa_token.stdout }}'
+          name: PIPELINE_KUBECONFIG
+          value: '{{ body_yaml | to_yaml }}'
       ansible.builtin.include_tasks:
         file: tasks/hcp-vs-write-secret.yml
