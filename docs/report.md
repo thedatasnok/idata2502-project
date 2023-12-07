@@ -636,9 +636,9 @@ This prevented ExternalDNS from creating new records, and as a result the produc
 
 # Reflections
 
-The project has been a good experience with a fair share of learning. The student had not yet used Terraform or Ansible for something meaningful and it was a good way of getting more familiar with both of these tools. The student had used Kubernetes before, but not this exact distribution and set of tools on top. The student had also used GitHub Actions before, but not in an as complicated fashion as this project.
+The project has been a good experience with a fair share of learning. The student had not yet used Terraform or Ansible for something meaningful and it was a good way of gaining familiarity with both of these tools. The student had used Kubernetes before, but not this exact distribution and set of tools on top. The student had also used GitHub Actions before, but not in an as complicated fashion as this project.
 
-During the project some challenges. Dynamic inventorying and SSH connections to nodes were a bit of a challenge, since the host key signatures would rotate when the environment was re-created, this was overcome by disabling StrictHostKeyChecking in the SSH client. Another challenge was the integration with Linode, as ExternalDNS created a lot of duplicate records in the domain, resulting in the production deployment being inaccessible. This was resolved by upgrading ExternalDNS to a newer version.
+During the project some were challenges were faced. Dynamic inventorying and SSH connections to nodes is one of them. The host key signatures would rotate when the environment was re-created, however this was overcome by disabling StrictHostKeyChecking in the SSH client. Another challenge was the integration with Linode, as ExternalDNS created a lot of duplicate records in the domain, resulting in the production deployment being inaccessible. This was resolved by upgrading ExternalDNS to a newer version.
 
 # Conclusion
 
