@@ -642,7 +642,7 @@ During the project some were challenges were faced. Dynamic inventorying and SSH
 
 # Conclusion
 
-The student feels that this project has been a good learning experience. Through the project the student had set up a multiworkflow pipeline for deploying a full stack web application to infrastructure hosted in Linode. The application runs as a container within Kubernetes, running in a cluster of nodes provisioned by Terraform and configured by Ansible. During the project some challenges were faced, but the student is satisfied with the overall result of the project.
+The student feels that this project has been a good learning experience. Through the project the student had set up a multiworkflow pipeline for deploying a full stack web application to infrastructure hosted in Linode. The application runs as containers within a Kubernetes cluster. The cluster provisioned by Terraform and configured by Ansible. During the project some challenges were faced with different technologies, but the student is satisfied with the overall result of the project.
 
 # References
 
