@@ -611,7 +611,7 @@ jobs:
 
 ### Results
 
-![Successful app deployment pipeline run, awaiting production confirmation](assets/application-pipeline.png)
+![Successful app deployment pipeline run](assets/application-pipeline.png)
 
 ### Security considerations
 
