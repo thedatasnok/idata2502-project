@@ -3,8 +3,9 @@
 As part of the course IDATA2502 Cloud service administration, we are tasked to create a portfolio project.
 The portfolio project rather was open-ended, allowing for us to define our own scopes and goals.
 In my case, I wanted to create a pipeline for deploying a full stack web application on highly available infrastructure.
+This report describes how the pipeline is set up to support this, which tools have been used to accomplish it, and the challenges faced whilst doing so.
 
-The project in its current state can be found at [github.com/thedatasnok/idata2502-project](https://github.com/thedatasnok/idata2502-project).
+The project in its current state and its source code is openly available at [github.com/thedatasnok/idata2502-project](https://github.com/thedatasnok/idata2502-project).
 
 # Tools
 
